@@ -3,8 +3,9 @@ const app = express()
 const ethers = require("ethers");
 const Web3 = require("web3");
 const IPair = require("@uniswap/v2-core/build/IUniswapV2Pair.json");
+require('dotenv').config();
 
-const port = 9009
+const port = process.env.PORT || 3000
 
 const chains = {
     1: {
