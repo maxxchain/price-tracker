@@ -23,6 +23,14 @@ const chains = {
         usdtDecimal: 18,
         web3: {}
     },
+    10201: {
+        rpc: "https://mainrpc.maxxchain.org",
+        ethUsdtPair: {},
+        ethUsdtPairAddy: "0x217a7522feda3cea46744645e6329c784606bdc9",
+        ethIsToken0: false,
+        usdtDecimal: 18,
+        web3: {}
+    },
 }
 
 const formatDigits = (amount) => {
@@ -100,6 +108,26 @@ app.get('/bsc/maxx', async (req, res) => {
     const maxxPriceUsdt = formatDigits(maxxPriceEth * ethPrice);
 
     return res.send({ "maxx-bnb": maxxPriceEth, "maxx-usdt": maxxPriceUsdt })
+})
+
+app.get('/maxxchain/maxx', async (req, res) => {
+    const ethIsToken0 = false;
+    const dexPairAddress = "0x5bDE6210f307596c64189291D0b61f769863bC52";
+    const chainId = "10201"
+    const chain = getChain(chainId)
+    const web3 = chain.web3
+    const pairContract = new web3.eth.Contract(IPair.abi, dexPairAddress);
+
+    const dexReserves = await pairContract.methods.getReserves().call();
+    let ethReserve = ethIsToken0 ? dexReserves[0] : dexReserves[1];
+    ethReserve = ethers.formatEther(ethReserve.toString());
+    let maxxReserve = ethIsToken0 ? dexReserves[1] : dexReserves[0];
+    maxxReserve = ethers.formatEther(maxxReserve.toString());
+    const ethPrice = await getEthPrice(chain)
+    const maxxPriceEth = formatDigits(ethReserve / maxxReserve);
+    const maxxPriceUsdt = formatDigits(maxxPriceEth * ethPrice);
+
+    return res.send({ "maxx-pwr": maxxPriceEth, "maxx-usdt": maxxPriceUsdt })
 })
 
 app.listen(port, () => {
