@@ -164,6 +164,14 @@ app.get('/maxxchain/maxx', async (req, res) => {
     return res.send({ "maxx-pwr": maxxPriceEth, "maxx-usdt": maxxPriceUsdt, totalSupply })
 })
 
+app.get('/maxxchain/pwr', async (req, res) => {
+    const chainId = "10201"
+    const chain = getChain(chainId)
+    const ethPrice = await getEthPrice(chain)
+
+    return res.send({"pwr-usdt": ethPrice })
+})
+
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
 })

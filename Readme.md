@@ -9,6 +9,9 @@ https://priceapi.maxxchain.org/bsc/maxx
 Maxx price on Ethereum [GET]    
 https://priceapi.maxxchain.org/eth/maxx
 
+Pwr price on MaxxChain [GET]    
+https://priceapi.maxxchain.org/maxxchain/pwr
+
 Expected result from price endpoints    
 ```
 {
