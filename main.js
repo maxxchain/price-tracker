@@ -3,6 +3,8 @@ const app = express()
 const ethers = require("ethers");
 const Web3 = require("web3");
 const IPair = require("@uniswap/v2-core/build/IUniswapV2Pair.json");
+const fetch = require("node-fetch");
+
 require('dotenv').config();
 
 const port = process.env.PORT || 3000
@@ -165,11 +167,20 @@ app.get('/maxxchain/maxx', async (req, res) => {
 })
 
 app.get('/maxxchain/pwr', async (req, res) => {
-    const chainId = "10201"
-    const chain = getChain(chainId)
-    const ethPrice = await getEthPrice(chain)
+    // const chainId = "10201"
+    // const chain = getChain(chainId)
+    let ethPrice = 0//await getEthPrice(chain)
 
-    return res.send({"pwr-usdt": ethPrice })
+    const price = (
+        await (await fetch(`https://api.coinstore.com/api/v1/ticker/price;symbol=PWRUSDT`)).json()
+    ).data[0].price;
+    const ethPriceOnCex = Number(price);
+
+    if (ethPriceOnCex) {
+        ethPrice = ethPriceOnCex;
+    }
+
+    return res.send({ "pwr-usdt": ethPrice })
 })
 
 app.listen(port, () => {
