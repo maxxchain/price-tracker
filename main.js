@@ -71,6 +71,29 @@ app.get('/', async (req, res) => {
     return res.send({ message: "Api doc" })
 })
 
+app.get('/getsupplies', async (req, res) => {
+    let chainId = "1"
+    let chain = getChain(chainId)
+    let web3 = chain.web3
+    const maxxAddrEth = "0x966e770030209C95F974f37Edbde65D98e853354"
+    const maxxContractEth = new web3.eth.Contract(IPair.abi, maxxAddrEth);
+    chainId = "56"
+    chain = getChain(chainId)
+    web3 = chain.web3
+    const maxxAddrBsc = "0x3e61c7fB137765E7CfCC4399d2D7D5Bc1838D6b1"
+    const maxxContractBsc = new web3.eth.Contract(IPair.abi, maxxAddrBsc);
+    chainId = "10201"
+    chain = getChain(chainId)
+    web3 = chain.web3
+    const maxxAddrMaxxChain = "0x25490a833a22050deae49647d0c264e1960ff8e0"
+    const maxxContract = new web3.eth.Contract(IPair.abi, maxxAddrMaxxChain);
+
+    const eth = ((await maxxContractEth.methods.totalSupply().call()) / 1e18).toString()
+    const bsc = ((await maxxContractBsc.methods.totalSupply().call()) / 1e18).toString()
+    const maxxchain = ((await maxxContract.methods.totalSupply().call()) / 1e18).toString()
+    return res.send({ eth, maxxchain, bsc })
+})
+
 app.get('/eth/maxx', async (req, res) => {
     const ethIsToken0 = false;
     const dexPairAddress = "0xb618708643490df2f3F90149b27954a4bE04F1e4";
@@ -81,7 +104,7 @@ app.get('/eth/maxx', async (req, res) => {
     const pairContract = new web3.eth.Contract(IPair.abi, dexPairAddress);
     const maxxContract = new web3.eth.Contract(IPair.abi, maxxAddr);
 
-    const totalSupply = ((await maxxContract.methods.totalSupply().call())/1e18).toString()
+    const totalSupply = ((await maxxContract.methods.totalSupply().call()) / 1e18).toString()
     const dexReserves = await pairContract.methods.getReserves().call();
     let ethReserve = ethIsToken0 ? dexReserves[0] : dexReserves[1];
     ethReserve = ethers.formatEther(ethReserve.toString());
@@ -104,7 +127,7 @@ app.get('/bsc/maxx', async (req, res) => {
     const pairContract = new web3.eth.Contract(IPair.abi, dexPairAddress);
     const maxxContract = new web3.eth.Contract(IPair.abi, maxxAddr);
 
-    const totalSupply = ((await maxxContract.methods.totalSupply().call())/1e18).toString()
+    const totalSupply = ((await maxxContract.methods.totalSupply().call()) / 1e18).toString()
     const dexReserves = await pairContract.methods.getReserves().call();
     let ethReserve = ethIsToken0 ? dexReserves[0] : dexReserves[1];
     ethReserve = ethers.formatEther(ethReserve.toString());
@@ -127,7 +150,7 @@ app.get('/maxxchain/maxx', async (req, res) => {
     const pairContract = new web3.eth.Contract(IPair.abi, dexPairAddress);
     const maxxContract = new web3.eth.Contract(IPair.abi, maxxAddr);
 
-    const totalSupply = ((await maxxContract.methods.totalSupply().call())/1e18).toString()
+    const totalSupply = ((await maxxContract.methods.totalSupply().call()) / 1e18).toString()
     const dexReserves = await pairContract.methods.getReserves().call();
     let ethReserve = ethIsToken0 ? dexReserves[0] : dexReserves[1];
     ethReserve = ethers.formatEther(ethReserve.toString());
