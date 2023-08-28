@@ -94,7 +94,7 @@ app.get('/totalsupplies', async (req, res) => {
     const eth = await getSupply(maxxAddrEth, burnAddr, 1)
     const bsc = await getSupply(maxxAddrBsc, burnAddr, 56)
     const maxxchain = await getSupply(maxxAddrMaxxChain, burnAddr, 10201)
-    return res.send({supply: (eth + maxxchain + bsc)})
+    return res.send({supply: (eth + bsc)})
 })
 
 app.get('/getsupplies', async (req, res) => {
