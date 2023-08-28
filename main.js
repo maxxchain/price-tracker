@@ -84,6 +84,19 @@ const getSupply = async (addr, burnAddr, chainId) => {
     return (totalSupply - burnSupply)
 }
 
+app.get('/totalsupplies', async (req, res) => {
+    const maxxAddrEth = "0x966e770030209C95F974f37Edbde65D98e853354"
+    const burnAddr = "0x000000000000000000000000000000000000dEaD"
+
+    const maxxAddrBsc = "0x3e61c7fB137765E7CfCC4399d2D7D5Bc1838D6b1"
+    const maxxAddrMaxxChain = "0x25490a833a22050deae49647d0c264e1960ff8e0"
+
+    const eth = await getSupply(maxxAddrEth, burnAddr, 1)
+    const bsc = await getSupply(maxxAddrBsc, burnAddr, 56)
+    const maxxchain = await getSupply(maxxAddrMaxxChain, burnAddr, 10201)
+    return res.send(eth + maxxchain + bsc)
+})
+
 app.get('/getsupplies', async (req, res) => {
     const maxxAddrEth = "0x966e770030209C95F974f37Edbde65D98e853354"
     const burnAddr = "0x000000000000000000000000000000000000dEaD"
