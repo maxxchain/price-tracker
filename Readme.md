@@ -21,7 +21,7 @@ Expected result from price endpoints
 }
 ```
 
-Get only supplies [GET]     
+Get only Maxx supplies [GET]     
 https://priceapi.maxxchain.org/getsupplies
 
 Expected response
@@ -31,4 +31,12 @@ Expected response
     "maxxchain": "10000000000",
     "bsc": "200000000000"
 }
+```
+
+Get sum of all Maxx supplies [GET]     
+https://priceapi.maxxchain.org/getsupplies
+
+Expected response
+```
+5000000
 ```
