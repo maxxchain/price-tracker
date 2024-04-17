@@ -1,21 +1,17 @@
-
-FROM node:14.18.0-alpine AS BUILD_IMAGE
-
-WORKDIR /usr/src/app
-
-COPY package.json yarn.lock ./
+# Build stage
+FROM node:16.15.0-alpine as build
+WORKDIR /app
 COPY . .
 
-ENV PATH /usr/src/app/node_modules/.bin:$PATH
+RUN apk add --no-cache python3 make g++ \
+    && yarn install \
+    && yarn run build \
+    && apk del python3 make g++
 
-RUN apk add --no-cache git
-RUN yarn install
-RUN yarn build
-
-
-FROM node:14.18.0-alpine
-#
-WORKDIR /usr/src/app
-#
-COPY --from=BUILD_IMAGE /usr/src/app/build/. ./
-
+# Production stage
+FROM node:16.15.0-alpine as production
+WORKDIR /app
+COPY --from=build /app/build ./build
+RUN yarn global add serve
+EXPOSE 3003
+CMD ["serve", "-s", "-p", "3003", "--no-port-switching", "./build"]
