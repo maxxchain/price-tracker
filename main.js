@@ -3,6 +3,8 @@ const app = express()
 const ethers = require("ethers");
 const Web3 = require("web3");
 const IPair = require("@uniswap/v2-core/build/IUniswapV2Pair.json");
+const fetch = require("node-fetch");
+
 require('dotenv').config();
 
 const port = process.env.PORT || 3000
@@ -71,14 +73,54 @@ app.get('/', async (req, res) => {
     return res.send({ message: "Api doc" })
 })
 
+const getSupply = async (addr, burnAddr, chainId) => {
+    const chain = getChain(chainId)
+    const web3 = chain.web3
+    const tokenContract = new web3.eth.Contract(IPair.abi, addr);
+
+    const burnSupply = ((await tokenContract.methods.balanceOf(burnAddr).call()) / 1e18).toString()
+    const totalSupply = ((await tokenContract.methods.totalSupply().call()) / 1e18).toString()
+
+    return (totalSupply - burnSupply)
+}
+
+app.get('/totalsupplies', async (req, res) => {
+    const maxxAddrEth = "0x966e770030209C95F974f37Edbde65D98e853354"
+    const burnAddr = "0x000000000000000000000000000000000000dEaD"
+
+    const maxxAddrBsc = "0x3e61c7fB137765E7CfCC4399d2D7D5Bc1838D6b1"
+    const maxxAddrMaxxChain = "0x25490a833a22050deae49647d0c264e1960ff8e0"
+
+    const eth = await getSupply(maxxAddrEth, burnAddr, 1)
+    const bsc = await getSupply(maxxAddrBsc, burnAddr, 56)
+    const maxxchain = await getSupply(maxxAddrMaxxChain, burnAddr, 10201)
+    return res.send({supply: (eth + bsc)})
+})
+
+app.get('/getsupplies', async (req, res) => {
+    const maxxAddrEth = "0x966e770030209C95F974f37Edbde65D98e853354"
+    const burnAddr = "0x000000000000000000000000000000000000dEaD"
+
+    const maxxAddrBsc = "0x3e61c7fB137765E7CfCC4399d2D7D5Bc1838D6b1"
+    const maxxAddrMaxxChain = "0x25490a833a22050deae49647d0c264e1960ff8e0"
+
+    const eth = await getSupply(maxxAddrEth, burnAddr, 1)
+    const bsc = await getSupply(maxxAddrBsc, burnAddr, 56)
+    const maxxchain = await getSupply(maxxAddrMaxxChain, burnAddr, 10201)
+    return res.send({ eth, maxxchain, bsc })
+})
+
 app.get('/eth/maxx', async (req, res) => {
     const ethIsToken0 = false;
     const dexPairAddress = "0xb618708643490df2f3F90149b27954a4bE04F1e4";
+    const maxxAddr = "0x966e770030209C95F974f37Edbde65D98e853354"
+    const burnAddr = "0x000000000000000000000000000000000000dEaD"
     const chainId = "1"
     const chain = getChain(chainId)
     const web3 = chain.web3
     const pairContract = new web3.eth.Contract(IPair.abi, dexPairAddress);
 
+    const totalSupply = await getSupply(maxxAddr, burnAddr, chainId)
     const dexReserves = await pairContract.methods.getReserves().call();
     let ethReserve = ethIsToken0 ? dexReserves[0] : dexReserves[1];
     ethReserve = ethers.formatEther(ethReserve.toString());
@@ -88,17 +130,20 @@ app.get('/eth/maxx', async (req, res) => {
     const maxxPriceEth = formatDigits(ethReserve / maxxReserve);
     const maxxPriceUsdt = formatDigits(maxxPriceEth * ethPrice);
 
-    return res.send({ "maxx-eth": maxxPriceEth, "maxx-usdt": maxxPriceUsdt })
+    return res.send({ "maxx-eth": maxxPriceEth, "maxx-usdt": maxxPriceUsdt, totalSupply })
 })
 
 app.get('/bsc/maxx', async (req, res) => {
     const ethIsToken0 = false;
     const dexPairAddress = "0x6b3EcA3f6fa6b36d8277b201EDE9c0Ed6A2779e7";
+    const maxxAddr = "0x3e61c7fB137765E7CfCC4399d2D7D5Bc1838D6b1"
+    const burnAddr = "0x000000000000000000000000000000000000dEaD"
     const chainId = "56"
     const chain = getChain(chainId)
     const web3 = chain.web3
     const pairContract = new web3.eth.Contract(IPair.abi, dexPairAddress);
 
+    const totalSupply = await getSupply(maxxAddr, burnAddr, chainId)
     const dexReserves = await pairContract.methods.getReserves().call();
     let ethReserve = ethIsToken0 ? dexReserves[0] : dexReserves[1];
     ethReserve = ethers.formatEther(ethReserve.toString());
@@ -108,17 +153,20 @@ app.get('/bsc/maxx', async (req, res) => {
     const maxxPriceEth = formatDigits(ethReserve / maxxReserve);
     const maxxPriceUsdt = formatDigits(maxxPriceEth * ethPrice);
 
-    return res.send({ "maxx-bnb": maxxPriceEth, "maxx-usdt": maxxPriceUsdt })
+    return res.send({ "maxx-bnb": maxxPriceEth, "maxx-usdt": maxxPriceUsdt, totalSupply })
 })
 
 app.get('/maxxchain/maxx', async (req, res) => {
     const ethIsToken0 = false;
     const dexPairAddress = "0x5bDE6210f307596c64189291D0b61f769863bC52";
+    const maxxAddr = "0x25490a833a22050deae49647d0c264e1960ff8e0"
+    const burnAddr = "0x000000000000000000000000000000000000dEaD"
     const chainId = "10201"
     const chain = getChain(chainId)
     const web3 = chain.web3
     const pairContract = new web3.eth.Contract(IPair.abi, dexPairAddress);
 
+    const totalSupply = await getSupply(maxxAddr, burnAddr, chainId)
     const dexReserves = await pairContract.methods.getReserves().call();
     let ethReserve = ethIsToken0 ? dexReserves[0] : dexReserves[1];
     ethReserve = ethers.formatEther(ethReserve.toString());
@@ -128,7 +176,24 @@ app.get('/maxxchain/maxx', async (req, res) => {
     const maxxPriceEth = formatDigits(ethReserve / maxxReserve);
     const maxxPriceUsdt = formatDigits(maxxPriceEth * ethPrice);
 
-    return res.send({ "maxx-pwr": maxxPriceEth, "maxx-usdt": maxxPriceUsdt })
+    return res.send({ "maxx-pwr": maxxPriceEth, "maxx-usdt": maxxPriceUsdt, totalSupply })
+})
+
+app.get('/maxxchain/pwr', async (req, res) => {
+    // const chainId = "10201"
+    // const chain = getChain(chainId)
+    let ethPrice = 0//await getEthPrice(chain)
+
+    const price = (
+        await (await fetch(`https://api.coinstore.com/api/v1/ticker/price;symbol=PWRUSDT`)).json()
+    ).data[0].price;
+    const ethPriceOnCex = Number(price);
+
+    if (ethPriceOnCex) {
+        ethPrice = ethPriceOnCex;
+    }
+
+    return res.send({ "pwr-usdt": ethPrice })
 })
 
 app.listen(port, () => {
