@@ -26,8 +26,8 @@ workflows:
   build-project:
     jobs:
       - deploy-production:
-          image: oxquantum/price-tracker
-          deploy-file: ~/deploy/price-tracker.sh
+          image: oxquantum/pricetracker
+          deploy-file: ~/deploy/pricetracker.sh
           filters:
             branches:
               only:
